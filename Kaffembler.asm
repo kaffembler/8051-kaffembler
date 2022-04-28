@@ -6,8 +6,7 @@
 ;             |||
 MOV P3, #00000001b
 
-; 
-;
+; LEDs ausschalten
 MOV P2, #11111111b
 
 LOOP:
@@ -40,22 +39,26 @@ COLD_ON:
   MOV A, P2
   ANL A, #01111111b
   MOV P2, A
+
   RET
 
 COLD_OFF:
   MOV A, P2
   ORL A, #10000000b
   MOV P2, A
+
   RET
 
 HOT_ON:
   MOV A, P2
   ANL A, #10111111b
   MOV P2, A
+
   RET
 
 HOT_OFF:
   MOV A, P2
   ORL A, #01000000b
   MOV P2, A
+  
   RET
