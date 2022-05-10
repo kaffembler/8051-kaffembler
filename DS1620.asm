@@ -36,6 +36,7 @@ CALL CLOCK
 CALL CLOCK
 CALL CLOCK
 CALL CLOCK
+CALL SHOW
 
 LOOP:
   JMP LOOP
@@ -65,5 +66,26 @@ SET_CARRY:
 
 SHIFT_AND_CLOCK_HIGH:
   SETB CLK
-  RLC A
+  RRC A
+  RET
+
+SHOW:
+  MOV B, #0Ah
+  DIV AB
+  ; Wert von B auf rechte 7-Segment Anzeige  
+  CALL SHOW_NUMBER
+  MOV P0, #11111110b
+  MOV B, #0Ah
+  DIV AB
+  ; Wert von B auf mittlere 7-Segment Anzeige
+  CALL SHOW_NUMBER
+  MOV P0, #11111101b
+  MOV B, A
+  ; Wert von B auf linke 7-Segment Anzeige
+  CALL SHOW_NUMBER
+  MOV P0, #11111011b
+  RET
+
+SHOW_NUMBER:
+  ; B auflösen auf Port 1
   RET
