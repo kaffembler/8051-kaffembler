@@ -16,6 +16,8 @@ SETB CLK
 LOOP:
   CALL SEND
   CALL RECEIVE
+  CALL CHECK_READY
+  CALL CHECK_COLD
   JMP LOOP
 
 ; Request Temperature (AAh = 10101010b)
@@ -33,6 +35,7 @@ SEND:
   CALL SEND_1
   CALL SEND_0
   CALL SEND_1
+  CALL REFRESH
   RET
 
 ; ==================
@@ -87,17 +90,20 @@ SHOW:
   ; Wert von B auf rechte 7-Segment Anzeige  
   MOV P0, #11111111b
   CALL SHOW_NUMBER
+  MOV R2, B
   MOV P0, #11111110b
   MOV B, #0Ah
   DIV AB
   ; Wert von B auf mittlere 7-Segment Anzeige
   MOV P0, #11111111b
   CALL SHOW_NUMBER
+  MOV R3, B
   MOV P0, #11111101b
   MOV B, A
   ; Wert von B auf linke 7-Segment Anzeige
   MOV P0, #11111111b
   CALL SHOW_NUMBER
+  MOV R4, B
   MOV P0, #11111011b
   RET
 
@@ -109,6 +115,53 @@ SHOW_NUMBER:
   MOV P1, A
   XCH A, B
   RET
+
+REFRESH:
+; Wert von B auf rechte 7-Segment Anzeige  
+  MOV P0, #11111111b
+  MOV P1, R2
+  MOV P0, #11111110b
+  ; Wert von B auf mittlere 7-Segment Anzeige
+  MOV P0, #11111111b
+  MOV P1, R3
+  MOV P0, #11111101b
+  ; Wert von B auf linke 7-Segment Anzeige
+  MOV P0, #11111111b
+  MOV P1, R4
+  MOV P0, #11111011b
+  RET
+
+CHECK_READY:
+  MOV A, P3
+  ANL A, #00100000b
+
+  CJNE A, #00000000b, READY_ON
+  ;JMP CHECK_READY
+  RET
+
+CHECK_COLD:
+  MOV A, P3
+  ANL A, #00010000b
+
+  CJNE A, #00000000b, COLD_ON
+  ;JMP CHECK_COLD
+  RET
+
+COLD_ON:
+  CLR P2.7
+  SETB P2.6
+  RET
+  ;JMP CHECK_READY
+
+
+
+READY_ON:
+  CLR P2.6
+  SETB P2.7
+  RET
+  ;JMP CHECK_COLD
+
+
 ;-----------------------------------------------
 ; TABLE: Datenbank der 7-Segment-Darstellung
 ;-----------------------------------------------
